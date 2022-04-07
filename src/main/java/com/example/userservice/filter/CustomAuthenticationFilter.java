@@ -3,7 +3,9 @@ package com.example.userservice.filter;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -37,12 +39,24 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         this.authenticationManager = authenticationManager;
     }
 
+    @SneakyThrows
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        log.info("Username is: {}", username); log.info("Password is: {}", password);
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
+
+//        System.out.println(request.getParameterMap().size());
+//        Object object1 = request.getAttributeNames();
+//        System.out.println(object1.toString());
+        String credentials = request.getReader().lines().collect(Collectors.joining());
+//        String header = request.getHeader("Content-Type");
+//        System.out.println(" AAA "+header);
+//        Object object = request;
+        System.out.println(" AAA "+credentials);
+
+        JSONObject jsonObject = new JSONObject(credentials);
+        String email = jsonObject.getString("email");
+        String password = jsonObject.getString("password");
+        log.info("email is: {}", email); log.info("Password is: {}", password);
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
         return authenticationManager.authenticate(authenticationToken);
     }
 

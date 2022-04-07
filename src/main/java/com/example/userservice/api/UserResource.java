@@ -10,10 +10,13 @@ import com.example.userservice.domain.User;
 import com.example.userservice.service.UserService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,10 +35,15 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
  * @since 7/10/2021
  */
 @RestController
+@CrossOrigin("http://localhost:4200")
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class UserResource {
     private final UserService userService;
+
+
+
+
 
     @GetMapping("/users")
     public ResponseEntity<List<User>>getUsers() {
@@ -60,6 +68,16 @@ public class UserResource {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/user/delete")
+    public ResponseEntity<String> deleteUser(@RequestBody String json) throws JSONException {
+        JSONObject jsonObject = new JSONObject(json);
+        String email = jsonObject.getString("email");
+        System.out.println(email);
+        String response = userService.deleteUser(email);
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/role/save").toUriString());
+        return ResponseEntity.created(uri).body(response);
+    }
+
     @GetMapping("/token/refresh")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String authorizationHeader = request.getHeader(AUTHORIZATION);
@@ -69,10 +87,10 @@ public class UserResource {
                 Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
                 JWTVerifier verifier = JWT.require(algorithm).build();
                 DecodedJWT decodedJWT = verifier.verify(refresh_token);
-                String username = decodedJWT.getSubject();
-                User user = userService.getUser(username);
+                String email = decodedJWT.getSubject();
+                User user = userService.getUser(email);
                 String access_token = JWT.create()
-                        .withSubject(user.getUsername())
+                        .withSubject(user.getEmail())
                         .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
                         .withIssuer(request.getRequestURL().toString())
                         .withClaim("roles", user.getRoles().stream().map(Role::getName).collect(Collectors.toList()))

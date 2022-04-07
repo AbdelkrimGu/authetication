@@ -1,5 +1,6 @@
 package com.example.userservice.domain;
 
+import com.example.userservice.enume.Sexe;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,10 +21,23 @@ import static javax.persistence.GenerationType.*;
 public class User {
     @Id @GeneratedValue(strategy = AUTO)
     private Long id;
-    private String name;
+    private String nom;
+    private String prenom;
+    private String telephone;
     @Column(unique = true)
-    private String username;
+    private String email;
     private String password;
+    private String image;
+    private String adresse;
+    private String ville;
+
+    @Enumerated(EnumType.STRING)
+    private Sexe sexe;
+
+
+
+
+
     @ManyToMany(fetch = EAGER)
     private Collection<Role> roles = new ArrayList<>();
 }

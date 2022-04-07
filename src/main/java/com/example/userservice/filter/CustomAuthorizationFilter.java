@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.stream;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -35,7 +36,13 @@ import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 public class CustomAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if(request.getServletPath().equals("/api/login") || request.getServletPath().equals("/api/token/refresh")) {
+        if(request.getServletPath().equals("/api/login") || request.getServletPath().equals("/api/user/save") || request.getServletPath().equals("/api/token/refresh")) {
+//            String credentials = request.getReader().lines().collect(Collectors.joining());
+//            System.out.println(" AAA77 "+credentials);
+//            System.out.println(request.getRequestURL());
+//            System.out.println(request.getServletPath());
+//            System.out.println(request.getContentType());
+//            System.out.println(request.getContextPath());
             filterChain.doFilter(request, response);
         } else {
             String authorizationHeader = request.getHeader(AUTHORIZATION);
